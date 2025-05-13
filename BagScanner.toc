@@ -1,0 +1,5 @@
+## Interface: 30404
+## Author: Antihealz
+## Version: 1.0.0
+## Title: GuildBagScanner
+## Notes: Create CSV file from all inventory including bank

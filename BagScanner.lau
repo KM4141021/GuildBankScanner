@@ -1,0 +1,132 @@
+--[[
+  BagScanner.lua
+  Simple WoW Classic addon to scan your bags and print each item.
+--]]
+
+-- Create a frame just to show a load message
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("BANKFRAME_OPENED")
+
+frame:SetScript("OnEvent", function(self, event)
+  print("|cff00ff00BagScanner loaded!|r Type |cffffff00/bagscan|r to list your bag items.")
+  if event == "BANKFRAME_OPENED" then
+    
+     print("test1")
+     for slot = 0, C_Container.GetContainerNumSlots(BANK_CONTAINER) do
+           print("testing2")
+       local itemLink = C_Container.GetContainerItemLink(BANK_CONTAINER, slot)
+            print("testing3")
+       if itemLink then
+          print("item valid")
+         print(BANK_CONTAINER, slot, itemLink)
+         --text = text .. itemLink:match("%[(.-)%]") .. ","
+         --print("THIS IS ".. text)
+         local info = C_Container.GetContainerItemInfo(BANK_CONTAINER, slot)
+         local stackCount = info and info.stackCount or 1
+         print(stackCount)
+        -- text = text .. stackCount .. "\n"
+         print("Right before full text\n")
+         --print(text)
+           end
+         end
+       
+		
+	end
+end)
+
+local text = "name, quantity, rarity\n"
+
+
+-- Register a slash command
+SLASH_BAGSCANNER1 = "/bagscan"
+SlashCmdList["BAGSCANNER"] = function()
+  print("|cff00ffffScanning bags...|r")
+  for bag = 0, 4 do
+   -- print("test1")
+	for slot = 0, C_Container.GetContainerNumSlots(bag) do
+       -- print("testing2")
+		local itemLink = C_Container.GetContainerItemLink(bag, slot)
+		if itemLink then
+			--print(bag, slot, itemLink)
+      text = text .. itemLink:match("%[(.-)%]") .. ","
+      --print("THIS IS ".. text)
+      local info = C_Container.GetContainerItemInfo(bag, slot)
+      local stackCount = info and info.stackCount or 1
+      text = text .. stackCount .. "\n"
+      print("Right before full text\n")
+      print(text)
+		    end
+	    end
+    end 
+    
+    local mainFrame = CreateFrame("Frame", "MyAddonMainFrame", UIParent, "BasicFrameTemplateWithInset")
+mainFrame:SetSize(500, 350)
+mainFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+mainFrame.TitleBg:SetHeight(30)
+mainFrame.title = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+mainFrame.title:SetPoint("TOPLEFT", mainFrame.TitleBg, "TOPLEFT", 5, -3)
+mainFrame.title:SetText("BagScanner AntiHealz Edition")
+--mainFrame:Hide()
+
+mainFrame:EnableMouse(true)
+mainFrame:SetMovable(true)
+mainFrame:RegisterForDrag("LeftButton")
+mainFrame:SetScript("OnDragStart", function(self)
+	self:StartMoving()
+end)
+mainFrame:SetScript("OnDragStop", function(self)
+	self:StopMovingOrSizing()
+end)
+
+mainFrame:SetScript("OnShow", function()
+        PlaySound(808)
+end)
+
+mainFrame:SetScript("OnHide", function()
+        PlaySound(808)
+end)
+
+-- 1) Create a ScrollFrame so we get a scrollbar automatically
+local scroll = CreateFrame("ScrollFrame", "MyAddonScrollFrame", mainFrame, "UIPanelScrollFrameTemplate")
+scroll:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 10, -40)
+scroll:SetPoint("BOTTOMRIGHT", mainFrame, "BOTTOMRIGHT", -30, 10)
+
+-- 2) Create the EditBox as the scroll child
+local edit = CreateFrame("EditBox", "MyAddonEditBox", scroll)
+edit:SetMultiLine(true)
+edit:SetFontObject("ChatFontNormal")
+edit:SetAutoFocus(false)
+edit:EnableMouse(true)
+edit:SetAutoFocus(false)
+edit:SetFontObject("ChatFontNormal")
+edit:SetSize(400, 50)
+edit:SetPoint("CENTER", f, "CENTER")
+edit:SetText(text)
+edit:SetScript("OnEscapePressed", function(self)
+    mainFrame:Hide()
+end)
+-- fill the scroll region
+scroll:SetScrollChild(edit)
+end
+
+
+
+
+
+
+SLASH_BGSCANNER1 = "/bagscanner"
+SlashCmdList["BGSCANNER"] = function()
+    if mainFrame:IsShown() then
+        mainFrame:Hide()
+    else
+        mainFrame:Show()
+    end
+end
+
+table.insert(UISpecialFrames, "MyAddonMainFrame")
+
+
+
+
+
